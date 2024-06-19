@@ -9,31 +9,30 @@ class Program
     {
         ExtractionDB extractionDB = new ExtractionDB();
 
+        string component, pathImage;
+        // component = "div.prod-selrow[data-id='10000']"; // проци
+        // pathImage = "Image\\Processors";
+        //extractionDB.Parse(component, pathImage, pathImage + $"\\Characteristics.txt");
 
-        string component = "div.prod-selrow[data-id='10000']"; // проци
-        string pathImage = "Image\\Processors";
-        extractionDB.Parse(component, pathImage, pathImage + $"\\characteristics.txt");
+        //component = "div.prod-selrow[data-id='14000']"; // метеринки
+        //pathImage = "Image\\Motherboards";
+        //extractionDB.Parse(component, pathImage, pathImage + $"\\Characteristics.txt");
 
-        component = "div.prod-selrow[data-id='14000']"; // метеринки
-        pathImage = "Image\\Motherboards";
-        extractionDB.Parse(component, pathImage, pathImage + $"\\characteristics.txt");
-
-        component = "div.prod-selrow[data-id='16400']"; //оперативка
-        pathImage = "Image\\RAM";
-        extractionDB.Parse(component, pathImage, pathImage + $"\\characteristics.txt");
+        //component = "div.prod-selrow[data-id='16400']"; //оперативка
+        //pathImage = "Image\\RAM";
+        //extractionDB.Parse(component, pathImage, pathImage + $"\\Characteristics.txt");
 
         component = "div.prod-selrow[data-id='20000']"; //видеокарта
         pathImage = "Image\\VideoCards";
-        extractionDB.Parse(component, pathImage, pathImage + $"\\characteristics.txt");
+        extractionDB.Parse(component, pathImage, pathImage + $"\\Characteristics.txt");
 
-        component = "div.prod-selrow[data-id='24000']"; //корпус
-        pathImage = "Image\\Housing";
-        extractionDB.Parse(component, pathImage, pathImage + $"\\characteristics.txt");
+        //component = "div.prod-selrow[data-id='24000']"; //корпус
+        //pathImage = "Image\\Housing";
+        //extractionDB.Parse(component, pathImage, pathImage + $"\\Characteristics.txt");
 
-        component = "div.prod-selrow[data-id='40000']"; //БП
-        pathImage = "Image\\PowerSupplies";
-        extractionDB.Parse(component, pathImage, pathImage + $"\\characteristics.txt");
-
+        //component = "div.prod-selrow[data-id='40000']"; //БП
+        //pathImage = "Image\\PowerSupplies";
+        //extractionDB.Parse(component, pathImage, pathImage + $"\\Characteristics.txt");
 
     }
 }
@@ -91,6 +90,10 @@ class ExtractionDB
             //натискання на потрібний тип компонента
             IWebElement prodSelRowElement = driver.FindElement(By.CssSelector(component));
             IWebElement svgElement = prodSelRowElement.FindElement(By.CssSelector("svg.plus"));
+
+            ScrollElementIntoView(driver, svgElement);
+            Thread.Sleep(250);
+
             svgElement.Click();
 
             //знаходження останньої сторінки
@@ -100,7 +103,7 @@ class ExtractionDB
             string lastPageNumber = lastPageItem.GetAttribute("page");
 
             int pages = int.Parse(lastPageNumber);
-            pages++;
+            //pages++;
 
             IWebElement headerElement, linkElement, tableElement, imgElement, priceElement;
             string headerText, tableHtml, imageUrl, tempImageName;
@@ -108,6 +111,7 @@ class ExtractionDB
             List<string> headerTextList = new List<string>();
             List<string> tableHtmlList = new List<string>();
             List<string> prices = new List<string>();
+
             for (int j = 2; ; j++)
             {
                 // Найти все элементы внутри контейнера scrl-blu cat-products
@@ -118,7 +122,8 @@ class ExtractionDB
                     // Получить заголовок (имя продукта)
                     headerElement = productElements[i].FindElement(By.CssSelector("header a[target='_blank']"));
                     headerText = headerElement.Text;
-                    headerText = Regex.Replace($"//a[contains(text(),'{headerText}')]", @" \([^)]*\) ", "");
+                    //headerText = Regex.Replace($"//a[contains(text(),'{headerText}')]", @" \([^)]*\) ", "");
+                    headerText = $"//a[contains(text(),'{headerText}')]";
 
                     if (headerText == "")
                         continue;
@@ -137,15 +142,15 @@ class ExtractionDB
                     {
                         continue;
                     }
-                    
+
                     linkElement = productElements[i].FindElement(By.CssSelector("header > a"));
-                    headerTextList.Add(headerText);
+                    headerTextList.Add($"{k}_headerText");
 
                     // прокрутка до нужного елемнта
                     if (CanScrollDown(driver))
                     {
                         ScrollElementIntoView(driver, linkElement);
-                        Thread.Sleep(250);
+                        Thread.Sleep(200);
                     }
                     //откритие характеристик
                     linkElement.Click();
@@ -161,12 +166,11 @@ class ExtractionDB
                     //закритие характеристик
                     linkElement.Click();
                 }
-                if (j == pages)
+                if (j == pages + 1)
                 {
                     break;
                 }
                 IWebElement pageTwoElement = driver.FindElement(By.XPath($"//li[@page='{j}']"));
-                Thread.Sleep(1000);
                 ScrollElementIntoView(driver, pageTwoElement);
                 pageTwoElement.Click();
                 Thread.Sleep(1000);
@@ -199,6 +203,8 @@ class ExtractionDB
         finally
         {
             driver.Quit();
+            Console.WriteLine("Програма успішно завеошила роботу");
+            Console.WriteLine(component);
         }
     }
 
