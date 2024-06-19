@@ -10,8 +10,8 @@ class Program
         ExtractionDB extractionDB = new ExtractionDB();
 
         string component, pathImage;
-        // component = "div.prod-selrow[data-id='10000']"; // проци
-        // pathImage = "Image\\Processors";
+        //component = "div.prod-selrow[data-id='10000']"; // проци
+        //pathImage = "Image\\Processors";
         //extractionDB.Parse(component, pathImage, pathImage + $"\\Characteristics.txt");
 
         //component = "div.prod-selrow[data-id='14000']"; // метеринки
@@ -133,7 +133,7 @@ class ExtractionDB
 
                     //знаходження зображення та його завантаження указану папку
                     tempImageName = headerText.Replace("/", "");
-                    DownloadImage(imageUrl, @$"{pathImage}\{k++}_{tempImageName}.jpg");
+                    DownloadImage(imageUrl, @$"{pathImage}\{k}_{tempImageName}.jpg");
 
 
                     //знаходження компонента (процесора)
@@ -145,12 +145,12 @@ class ExtractionDB
 
                     linkElement = productElements[i].FindElement(By.CssSelector("header > a"));
                     headerTextList.Add($"{k}_headerText");
-
+                    k++;
                     // прокрутка до нужного елемнта
                     if (CanScrollDown(driver))
                     {
                         ScrollElementIntoView(driver, linkElement);
-                        Thread.Sleep(200);
+                        Thread.Sleep(180);
                     }
                     //откритие характеристик
                     linkElement.Click();
@@ -172,6 +172,7 @@ class ExtractionDB
                 }
                 IWebElement pageTwoElement = driver.FindElement(By.XPath($"//li[@page='{j}']"));
                 ScrollElementIntoView(driver, pageTwoElement);
+                Thread.Sleep(180);
                 pageTwoElement.Click();
                 Thread.Sleep(1000);
             }
