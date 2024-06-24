@@ -16,38 +16,70 @@ class Program
 {
     static void Main()
     {
-        ExtractionDB extractionDB = new ExtractionDB();
+        //Thread thread1 = new Thread(() =>
+        //{
+        //    string component = "div.prod-selrow[data-id='10000']";
+        //    string path = "Image\\Processors";
+        //    new ExtractionDB().Parse(component, path);
+        //});
 
-        string component, path;
+        // Материнские платы
+        //Thread thread2 = new Thread(() =>
+        //{
+        //    string component = "div.prod-selrow[data-id='14000']";
+        //    string path = "Image\\Motherboards";
+        //    new ExtractionDB().Parse(component, path);
+        //});
 
-        //component = "div.prod-selrow[data-id='10000']"; // проци
-        //path = "Image\\Processors";
-        //extractionDB.Parse(component, path);
+        // Оперативная память
+        Thread thread3 = new Thread(() =>
+        {
+            string component = "div.prod-selrow[data-id='16400']";
+            string path = "Image\\RAM";
+            new ExtractionDB().Parse(component, path);
+        });
 
-        //component = "div.prod-selrow[data-id='14000']"; // метеринки
-        //path = "Image\\Motherboards";
-        //extractionDB.Parse(component, path);
+        //// Видеокарты
+        //Thread thread4 = new Thread(() =>
+        //{
+        //    string component = "div.prod-selrow[data-id='20000']";
+        //    string path = "Image\\VideoCards";
+        //    new ExtractionDB().Parse(component, path);
+        //});
 
-        //component = "div.prod-selrow[data-id='16400']"; //оперативка
-        //path = "Image\\RAM";
-        //extractionDB.Parse(component, path);
+        // Корпуса
+        //Thread thread5 = new Thread(() =>
+        //{
+        //    string component = "div.prod-selrow[data-id='24000']";
+        //    string path = "Image\\Housing";
+        //    new ExtractionDB().Parse(component, path);
+        //});
 
-        //component = "div.prod-selrow[data-id='20000']"; //видеокарта
-        //path = "Image\\VideoCards";
-        //extractionDB.Parse(component, path);
+        //// Блоки питания
+        //Thread thread6 = new Thread(() =>
+        //{
+        //    string component = "div.prod-selrow[data-id='40000']";
+        //    string path = "Image\\PowerSupplies";
+        //    new ExtractionDB().Parse(component, path);
+        //});
 
-        component = "div.prod-selrow[data-id='24000']"; //корпус
-        path = "Image\\Housing";
-        extractionDB.Parse(component, path);
+        // Запуск всех потоков
+        //thread1.Start();
+        //thread2.Start();
+        thread3.Start();
+        //thread4.Start();
+        //thread5.Start();
+        //thread6.Start();
 
-        //component = "div.prod-selrow[data-id='24000']"; //корпус
-        //path = "Image\\Housing1";
-        //extractionDB.Parse(component, path, 15, 684);
-
-        //component = "div.prod-selrow[data-id='40000']"; //БП
-        //path = "Image\\PowerSupplies";
-        //extractionDB.Parse(component, path);
+        // Ожидание завершения всех потоков
+        //thread1.Join();
+        //thread2.Join();
+        thread3.Join();
+        //thread4.Join();
+        //thread5.Join();
+        //thread6.Join();
     }
+
 }
 
 class ExtractionDB
@@ -242,7 +274,7 @@ class ExtractionDB
             driver.Navigate().GoToUrl("https://elmir.ua/configurator/");
             ClosePopup();
             ClickElement(component);
-            driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(2);
+            driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(1.75);
 
             ParsePages();
 
