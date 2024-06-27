@@ -8,9 +8,10 @@ namespace GURU
 
         static void Main()
         {
-            StartAllSegments(11, 12);
+            StartAllSegments(13,14,15,16,17,18);
+            //StartSegmentRange();
         }
-        static void StartAllSegments(params int[] segmentNumbers)   
+        static void StartAllSegments(params int[] segmentNumbers)
         {
             Thread[] threads = new Thread[segmentNumbers.Length];
 
@@ -26,69 +27,55 @@ namespace GURU
                 thread.Join();
             }
         }
-        static void StartSegment(int segmentNumber)
-        {
-            string component, path;
 
-            switch (segmentNumber)
+        static void StartSegmentRange(int start, int end)
+        {
+            if (start > end)
             {
-                case 1:
-                    component = "div.prod-selrow[data-id='10000']";
-                    path = "Image\\Processors1";
-                    break;
-                case 2:
-                    component = "div.prod-selrow[data-id='14000']";
-                    path = "Image\\Motherboards";
-                    break;
-                case 3:
-                    component = "div.prod-selrow[data-id='16400']";
-                    path = "Image\\RAM";
-                    break;
-                case 4:
-                    component = "div.prod-selrow[data-id='20000']";
-                    path = "Image\\VideoCards";
-                    break;
-                case 5:
-                    component = "div.prod-selrow[data-id='24000']";
-                    path = "Image\\Housing";
-                    break;
-                case 6:
-                    component = "div.prod-selrow[data-id='40000']";
-                    path = "Image\\PowerSupplies1";
-                    break;
-                case 7:
-                    component = "div.prod-selrow[data-id='108472_12B-4jn']";
-                    path = "Image\\Drives\\SSD2.5";
-                    break;
-                case 8:
-                    component = "div.prod-selrow[data-id='108472_12B-r1I']";
-                    path = "Image\\Drives\\SSDM.2";
-                    break;
-                case 9:
-                    component = "div.prod-selrow[data-id='92868_CcE-50jd']";
-                    path = "Image\\Drives\\HD3.5";
-                    break;
-                case 10:
-                    component = "div.prod-selrow[data-id='92868_CcE-50je']";
-                    path = "Image\\Drives\\HD2.5";
-                    break;
-                case 11:
-                    component = "div.prod-selrow[data-id='106242_1Bt-6jG']";
-                    path = "Image\\Сooling\\Сooler";
-                    break;
-                case 12:
-                    component = "div.prod-selrow[data-id='821135']";
-                    path = "Image\\Сooling\\LiquidCooling";
-                    break;
-                default:
-                    throw new ArgumentException("Invalid segment number");
+                throw new ArgumentException("Start must be less than or equal to end");
             }
 
-            new ExtractionDB(component, path).Parse();
+            for (int i = start; i <= end; i++)
+            {
+                StartSegment(i);
+            }
         }
+
+        static void StartSegment(int segmentNumber)
+        {
+            var segments = new Dictionary<int, (string component, string path)>
+            {
+                { 1, ("div.prod-selrow[data-id='10000']", "Image\\Processors1") },
+                { 2, ("div.prod-selrow[data-id='14000']", "Image\\Motherboards") },
+                { 3, ("div.prod-selrow[data-id='16400']", "Image\\RAM") },
+                { 4, ("div.prod-selrow[data-id='20000']", "Image\\VideoCards") },
+                { 5, ("div.prod-selrow[data-id='24000']", "Image\\Housing") },
+                { 6, ("div.prod-selrow[data-id='40000']", "Image\\PowerSupplies1") },
+                { 7, ("div.prod-selrow[data-id='108472_12B-4jn']", "Image\\Drives\\SSD2.5") },
+                { 8, ("div.prod-selrow[data-id='108472_12B-r1I']", "Image\\Drives\\SSDM.2") },
+                { 9, ("div.prod-selrow[data-id='92868_CcE-50jd']", "Image\\Drives\\HD3.5") },
+                { 10, ("div.prod-selrow[data-id='92868_CcE-50je']", "Image\\Drives\\HD2.5") },
+                { 11, ("div.prod-selrow[data-id='106242_1Bt-6jG']", "Image\\Сooling\\Сooler") },
+                { 12, ("div.prod-selrow[data-id='821135']", "Image\\Сooling\\LiquidCooling") },
+                { 13, ("div.prod-selrow[data-id='196161']", "Image\\ThermalPaste") },
+                { 14, ("div.prod-selrow[data-id='106241']", "Image\\CaseFans") },
+                { 15, ("div.prod-selrow[data-id='32000']", "Image\\SoundCard") },
+                { 16, ("div.prod-selrow[data-id='902']", "Image\\OpticalDrive") },
+                { 17, ("div.prod-selrow[data-id='106244']", "Image\\LightingAndAdapters") },
+                { 18, ("div.prod-selrow[data-id='107622']", "Image\\NetworkCard") }
+            };
+
+            if (!segments.TryGetValue(segmentNumber, out var segment))
+            {
+                throw new ArgumentException("Invalid segment number");
+            }
+
+            new WebDataExtractor(segment.component, segment.path).ExtractAndSaveData();
+        }
+
     }
 
-    public class ExtractionDB(string component, string pathImage)
+    public class WebDataExtractor(string component, string pathImage)
     {
         private readonly List<string> headerTextList = [];
         private readonly List<string> tableHtmlList = [];
@@ -108,7 +95,7 @@ namespace GURU
         private int ElementsCounter { get => elementsCounter; set => elementsCounter = value; }
 
 
-        public void Parse()
+        public void ExtractAndSaveData()
         {
             try
             {
@@ -131,7 +118,7 @@ namespace GURU
             }
         }
 
-        public void ParseFromSpecificPage(int startPage, int initialElementCounter)//пока нема смисла юзать
+        public void ExtractAndSaveDataFromSpecificPage(int startPage, int initialElementCounter)//пока нема смисла юзать
         {
             ElementsCounter = initialElementCounter;
             try
@@ -280,9 +267,6 @@ namespace GURU
         private void ClickComponentElement()
         {
             /*
-            откритие устройств хранение, охдаждение,доп елементи в сис блоке
-            
-
             Переферия і їx дополнительні компоненти (пока без бази і інтерфейса для них в финальній прогі) 
             пока не робить
             */
@@ -300,17 +284,25 @@ namespace GURU
                 "div.prod-selrow[data-id='821135']"
             ];
 
-            if (cooling.Contains(component))
+            string[] AdditionalComponentsSystemUnit =
+            [
+                "div.prod-selrow[data-id='196161']",
+                "div.prod-selrow[data-id='106241']",
+                "div.prod-selrow[data-id='32000']",
+                "div.prod-selrow[data-id='902']",
+                "div.prod-selrow[data-id='106244']",
+                "div.prod-selrow[data-id='107622']"
+            ];
+            IWebElement componentElement0 = component switch
             {
-                IWebElement componentElement0 = chromeDriver.FindElement(By.CssSelector("div.prod-selrow[data-id='a1']"));
-                IWebElement svgElement0 = componentElement0.FindElement(By.CssSelector("svg"));
-                ScrollElementIntoView(svgElement0);
-                svgElement0.Click();
-            }
+                var _ when cooling.Contains(component) => chromeDriver.FindElement(By.CssSelector("div.prod-selrow[data-id='a1']")),
+                var _ when drives.Contains(component) => chromeDriver.FindElement(By.CssSelector("div.prod-selrow[data-id='a2']")),
+                var _ when AdditionalComponentsSystemUnit.Contains(component) => chromeDriver.FindElement(By.CssSelector(".pc-item-top.prod-selrow.load-add .title b")),
+                _ => throw new NoSuchElementException("Component not found in any category."),
+            };
 
-            if (drives.Contains(component))
+            if (componentElement0 != null)
             {
-                IWebElement componentElement0 = chromeDriver.FindElement(By.CssSelector("div.prod-selrow[data-id='a2']"));
                 IWebElement svgElement0 = componentElement0.FindElement(By.CssSelector("svg"));
                 ScrollElementIntoView(svgElement0);
                 svgElement0.Click();
